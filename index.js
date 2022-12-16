@@ -23,6 +23,13 @@ async function run() {
 
     const database = client.db("SmartCare");
     const doctorsCollection = database.collection("doctors");
+    const productsCollection = database.collection("Products");
+
+    app.get("/products", async (req, res) => {
+      const cursor = productsCollection.find({});
+      const products = await cursor.toArray();
+      res.json(products);
+    });
 
     app.get("/doctors", async (req, res) => {
       const cursor = doctorsCollection.find({});
@@ -31,7 +38,7 @@ async function run() {
     });
 
     app.get("/doctors/:email", async (req, res) => {
-      const {email} = req.params;
+      const email = req.params.email;
       const cursor = doctorsCollection.find({email});
       const doctor = await cursor.toArray();
       res.json(doctor);
