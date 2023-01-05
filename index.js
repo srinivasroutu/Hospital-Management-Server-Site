@@ -5,6 +5,7 @@ const { response } = require("express");
 var ObjectId = require("mongodb").ObjectId;
 require("dotenv").config();
 
+const multer = require("multer");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -13,7 +14,11 @@ app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tecyb.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
+});
 
 // console.log(uri)
 async function run() {
@@ -24,6 +29,7 @@ async function run() {
     const database = client.db("SmartCare");
     const doctorsCollection = database.collection("doctors");
     const productsCollection = database.collection("Products");
+    const AppointmentsCollection = database.collection("Appointments");
 
     app.get("/products", async (req, res) => {
       const cursor = productsCollection.find({});
@@ -39,10 +45,47 @@ async function run() {
 
     app.get("/doctors/:email", async (req, res) => {
       const email = req.params.email;
-      const cursor = doctorsCollection.find({email});
+      const cursor = doctorsCollection.find({ email });
       const doctor = await cursor.toArray();
       res.json(doctor);
     });
+
+    app.post("/appoinments", async (req, res) => {
+      const appointment = req.body;
+      const result = await AppointmentsCollection.insertOne(appointment);
+      res.json(result);
+    });
+    app.get("/appointments", async (req, res) => {
+      const cursor = AppointmentsCollection.find({});
+      const appointments = await cursor.toArray();
+      res.json(appointments);
+    });
+    app.post("/doctors", async (req, res) => {
+      const doctor = req.body;
+      const result = await doctorsCollection.insertOne(doctor);
+      res.json(result);
+    });
+
+    // Set up multer
+    // const storage = multer.diskStorage({
+    //   destination: function (req, file, cb) {
+    //     cb(null, "./uploads/");
+    //   },
+    //   filename: function (req, file, cb) {
+    //     cb(null, file.originalname);
+    //   },
+    // });
+    // const upload = multer({ storage: storage });
+
+    // // Set up the file upload route
+    // app.post("/upload", upload.single("file"), (req, res) => {
+    //   // Do something with the file
+    //   // For example, save it to the database
+    //   res.send({
+    //     status: "success",
+    //     file: req.file,
+    //   });
+    // });
     // // User sending to db
     // app.post("/users", async (req, res) => {
     //   const user = req.body;
@@ -72,7 +115,6 @@ async function run() {
     //   }
     //   res.json({ student: isStudent });
     // });
-
   } finally {
     //   await client.close();
   }
