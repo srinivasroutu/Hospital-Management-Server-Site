@@ -65,7 +65,20 @@ async function run() {
       const result = await doctorsCollection.insertOne(doctor);
       res.json(result);
     });
-
+    app.delete("/doctors/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await doctorsCollection.deleteOne(query);
+      res.json(result);
+    });
+    // app.put('/doctors/:id', async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: ObjectId(id) };
+    //   const updateDoc = { $set: req.body };
+    //   const result = await doctorsCollection.updateOne(query, updateDoc);
+    //   res.json(result);
+    // });
+    
     // Set up multer
     // const storage = multer.diskStorage({
     //   destination: function (req, file, cb) {
