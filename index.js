@@ -4,7 +4,7 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 const { response } = require("express");
 var ObjectId = require("mongodb").ObjectId;
 require("dotenv").config();
-
+const fileUpload = require("express-fileupload");
 const multer = require("multer");
 const app = express();
 const port = process.env.PORT || 5000;
@@ -12,6 +12,7 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(fileUpload());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tecyb.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -61,7 +62,27 @@ async function run() {
       res.json(appointments);
     });
     app.post("/doctors", async (req, res) => {
-      const doctor = req.body;
+      // console.log('body', req.body)
+      // console.log('files', req.files)
+      // const doctor = req.body;
+      const pic = req.files.image[0];
+      const picData = pic.data;
+      const encodedPic = picData.toString("base64");
+      const imageBuffer = Buffer.from(encodedPic, "base64");
+      const doctor = {
+        name: req.body.name,
+        email: req.body.email,
+        phone: req.body.phone,
+        fee: req.body.fee,
+        age: req.body.age,
+        specialist: req.body.specialist,
+        address : req.body.address,
+        degrees: req.body.degrees,
+        salary: req.body.salary,
+        time: req.body.time,
+        gender: req.body.gender,
+        image: imageBuffer,
+      }
       const result = await doctorsCollection.insertOne(doctor);
       res.json(result);
     });
