@@ -29,21 +29,41 @@ async function run() {
 
     const database = client.db("SmartCare");
     const doctorsCollection = database.collection("doctors");
-    const productsCollection = database.collection("Products");
     const AppointmentsCollection = database.collection("Appointments");
-
-    app.get("/products", async (req, res) => {
-      const cursor = productsCollection.find({});
-      const products = await cursor.toArray();
-      res.json(products);
-    });
 
     app.get("/doctors", async (req, res) => {
       const cursor = doctorsCollection.find({});
       const doctors = await cursor.toArray();
       res.json(doctors);
     });
-
+    // get all apprved doctors
+    app.get("/approvedDoctors", async (req, res) => {
+      const cursor = doctorsCollection.find({ approved: "true" });
+      const doctors = await cursor.toArray();
+      res.json(doctors);
+    });
+    // get all pending doctors
+    app.get("/pendingDoctors", async (req, res) => {
+      const cursor = doctorsCollection.find({ approved: "false" });
+      const doctors = await cursor.toArray();
+      res.json(doctors);
+    });
+    // delete doctor
+    app.delete("/doctors/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await doctorsCollection.deleteOne(query);
+      res.json(result);
+    });
+    // approve doctor
+    app.put("/approve/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      // make approved true
+      const result = doctorsCollection.updateOne(query, { $set: { approved: "true" } });
+      res.json(result);
+    });
+    // get doctor by email
     app.get("/doctors/:email", async (req, res) => {
       const email = req.params.email;
       const cursor = doctorsCollection.find({ email });
@@ -62,34 +82,30 @@ async function run() {
       res.json(appointments);
     });
     app.post("/doctors", async (req, res) => {
-      // console.log('body', req.body)
       // console.log('files', req.files)
-      // const doctor = req.body;
+      const doctor = req.body;
+      // add image buffer
       const pic = req.files.image[0];
       const picData = pic.data;
       const encodedPic = picData.toString("base64");
       const imageBuffer = Buffer.from(encodedPic, "base64");
-      const doctor = {
-        name: req.body.name,
-        email: req.body.email,
-        phone: req.body.phone,
-        fee: req.body.fee,
-        age: req.body.age,
-        specialist: req.body.specialist,
-        address : req.body.address,
-        degrees: req.body.degrees,
-        salary: req.body.salary,
-        time: req.body.time,
-        gender: req.body.gender,
-        image: imageBuffer,
-      }
+      doctor.image = imageBuffer;
       const result = await doctorsCollection.insertOne(doctor);
       res.json(result);
     });
-    app.delete("/doctors/:id", async (req, res) => {
+
+    // get patient by id
+    app.get('/patients/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) }
+      const result = await AppointmentsCollection.findOne(query)
+      res.json(result);
+    })
+    // delete by id
+    app.delete("/patients/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
-      const result = await doctorsCollection.deleteOne(query);
+      const result = await AppointmentsCollection.deleteOne(query);
       res.json(result);
     });
     // app.put('/doctors/:id', async (req, res) => {
@@ -99,7 +115,7 @@ async function run() {
     //   const result = await doctorsCollection.updateOne(query, updateDoc);
     //   res.json(result);
     // });
-    
+
     // Set up multer
     // const storage = multer.diskStorage({
     //   destination: function (req, file, cb) {
