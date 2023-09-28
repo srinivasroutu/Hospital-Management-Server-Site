@@ -81,6 +81,7 @@ async function run() {
       const appointments = await cursor.toArray();
       res.json(appointments);
     });
+    
     app.post("/doctors", async (req, res) => {
       // console.log('files', req.files)
       const doctor = req.body;
@@ -94,12 +95,6 @@ async function run() {
       res.json(result);
     });
 
-    // get patient by id
-    app.get('/patients', async (req, res) => {
-      const cursor = AppointmentsCollection.find({})
-      const result = await cursor.toArray()
-      res.json(result);
-    })
     // get patient by id
     app.get('/patients/:id', async (req, res) => {
       const id = req.params.id;
