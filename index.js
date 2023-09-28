@@ -95,19 +95,27 @@ async function run() {
     });
 
     // get patient by id
+    app.get('/patients', async (req, res) => {
+      const cursor = AppointmentsCollection.find({})
+      const result = await cursor.toArray()
+      res.json(result);
+    })
+    // get patient by id
     app.get('/patients/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) }
       const result = await AppointmentsCollection.findOne(query)
       res.json(result);
     })
-    // delete by id
+    // delete by id 
     app.delete("/patients/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await AppointmentsCollection.deleteOne(query);
       res.json(result);
     });
+
+
     // app.put('/doctors/:id', async (req, res) => {
     //   const id = req.params.id;
     //   const query = { _id: ObjectId(id) };
@@ -116,26 +124,6 @@ async function run() {
     //   res.json(result);
     // });
 
-    // Set up multer
-    // const storage = multer.diskStorage({
-    //   destination: function (req, file, cb) {
-    //     cb(null, "./uploads/");
-    //   },
-    //   filename: function (req, file, cb) {
-    //     cb(null, file.originalname);
-    //   },
-    // });
-    // const upload = multer({ storage: storage });
-
-    // // Set up the file upload route
-    // app.post("/upload", upload.single("file"), (req, res) => {
-    //   // Do something with the file
-    //   // For example, save it to the database
-    //   res.send({
-    //     status: "success",
-    //     file: req.file,
-    //   });
-    // });
     // // User sending to db
     // app.post("/users", async (req, res) => {
     //   const user = req.body;
