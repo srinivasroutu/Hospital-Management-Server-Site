@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use(fileUpload());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tecyb.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://srinivasroutu100:Srinivasgargi96%40@cluster0.q2w6yjj.mongodb.net/`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
